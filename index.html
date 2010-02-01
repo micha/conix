@@ -1,0 +1,145 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>Canvas Test</title>
+    <style type="text/css">
+      canvas {
+        float: left;
+        border: 1px solid blue;
+      }
+      form {
+        width: 40em;
+        text-align: right;
+      }
+    </style>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript">
+      $(function() {
+
+        var canvas = $("canvas").get()[0];
+        var ctx = canvas.getContext("2d");
+
+        var mesh = 6;
+
+        function point(p) {
+          console.log("point ["+p.x+","+p.y+"]");
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 3, 0, Math.PI*2, true);
+          ctx.fill();
+          return p;
+        }
+
+        function line(p1, p2) {
+          console.log("line ["+p1.x+","+p1.y+"], ["+p2.x+","+p2.y+"]");
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+
+        function Line(p1, p2) {
+          this.p1 = p1;
+          this.p2 = p2;
+
+          this.a  = p1.x == p2.x ? Infinity : (p2.y - p1.y) / (p2.x - p1.x);
+          this.b  = p1.x == p2.x ? Infinity : p1.y - p1.x * (p2.y - p1.y) / (p2.x - p1.x);
+
+          this.draw = function() {
+            line(this.p1, this.p2);
+          };
+
+          this.intersect = function(l) {
+            return (this.a == Infinity ? { x: p1.x, y: l.a * p1.x + l.b }
+                : (l.a == Infinity ? { x: l.p1.x, y: this.a * l.p1.x + this.b }
+                  : {
+                      x: (l.b - this.b) / (this.a - l.a),
+                      y: this.a * (l.b - this.b) / (this.a - l.a) + this.b
+                    }));
+          };
+        }
+
+        function conic(a, c, b, rho) {
+          var d = { 
+            x: a.x + (b.x - a.x) / 2,
+            y: a.y + (b.y - a.y) / 2
+          };
+
+          var s = { x: d.x + (c.x - d.x) * rho, y: d.y + (c.y - d.y) * rho };
+
+          var points = [];
+
+          point(a);
+          point(c);
+          point(b);
+
+          var AC = new Line(a, c);
+          var BC = new Line(b, c);
+          var AB = new Line(a, b);
+          var AS = new Line(a, s);
+          var BS = new Line(b, s);
+
+          var e, f, g, h, CE;
+
+          for (var i=1; i<mesh; i++) {
+            e = { x: a.x + i * (b.x - a.x) / mesh,
+                  y: a.y + i * (b.y - a.y) / mesh
+                };
+            CE = new Line(c, e);
+
+            f = AS.intersect(CE);
+            g = BS.intersect(CE);
+            h = (new Line(b, f)).intersect(new Line(a, g));
+            points.push(h);
+          }
+
+          ctx.strokeStyle = "rgb(255,0,0)";
+
+          ctx.strokeStyle = "black";
+          var lastPoint = a;
+          for (i=0; i<points.length; i++) {
+            line(lastPoint, points[i]);
+            lastPoint = points[i];
+          }
+          line(lastPoint, b);
+        }
+
+        $("form").submit(function() {
+          ctx.clearRect(0, 0, 400, 400);
+
+          var w = Number($("input[name='width']").val());
+          var h = Number($("input[name='height']").val());
+          var r = Number($("input[name='rho']").val());
+
+          mesh = Number($("input[name='grid']").val());
+
+          var a = {
+            x: (400 - w) / 2,
+            y: (400 - h) / 2
+          };
+          var c = {
+            x: a.x + w,
+            y: a.y
+          };
+          var b = {
+            x: a.x + w,
+            y: a.y + h
+          };
+
+          conic(a, c, b, r);
+
+          return false;
+        }).submit();
+
+      });
+    </script>
+  </head>
+  <body>
+    <canvas id="test" width="400" height="400"></canvas>
+    <form>
+      <label>width  </label><input type=text name="width" value="100" /> <br />
+      <label>height </label><input type=text name="height" value="100" /> <br />
+      <label>k </label><input type=text name="rho" value="0.7" /> <br />
+      <label>grid </label><input type=text name="grid" value="32" /> <br />
+      <input type="submit" />
+    </form>
+  </body>
+</html>
