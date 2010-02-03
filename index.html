@@ -63,7 +63,9 @@
             y: a.y + (b.y - a.y) / 2
           };
 
-          var s = { x: d.x + (c.x - d.x) * rho, y: d.y + (c.y - d.y) * rho };
+          var s = rho.x === undefined 
+            ? { x: d.x + (c.x - d.x) * rho, y: d.y + (c.y - d.y) * rho }
+            : rho;
 
           var points = [];
 
