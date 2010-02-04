@@ -13,34 +13,78 @@ Matrix.prototype.solve = function(m) {
   return $V(ret);
 };
 
+// Solve linear equations. Arguments are the coefficients of the equation
+// Ax + B = 0.
+Math.solveLinear = function(a, b) {
+  return -(b/a);
+};
+
+// Solve quadratic equations. Arguments are the coefficients of the equation
+// Ax^2 + Bx + C = 0.
+Math.solveQuadratic = function(a, b, c) {
+  var d = b*b - 4*a*c;
+  return [ (-b + Math.sqrt(d)) / (2*a), (-b - Math.sqrt(d)) / (2*a) ];
+};
+
 // A 2d triangle.
 function Triangle(a, b, c) {
-  this.a = a;
-  this.b = b;
-  this.c = c;
+  this.a = a.to3D();
+  this.b = b.to3D();
+  this.c = c.to3D();
+  this.M = $M([ this.a.elements, this.b.elements, this.c.elements ]);
 }
 
 // Is the point p inside the bounds of the triangle?
 Triangle.prototype.contains = function(p) {
-  var A = $M([ this.a.elements, this.b.elements, this.c.elements ]);
+  // Triangle's matrix representation.
+  var A = this.M;
 
+  // Edge vectors: lines AB, BC, and CA.
   var B = $M([
     [ -1,  1,  0 ],
     [  0, -1,  1 ],
     [  1,  0,  -1]
   ]).multiply(A);
 
-  var n = this.a.cross(this.b);
+  // Vector normal to the triangle's plane.
+  var zero = Vector.Zero(3);
+  var n = 
+    (this.a.eql(zero)
+      ? this.b.cross(this.c)
+      : this.a.cross(this.b.eql(zero) ? this.c : this.a));
 
+  console.log(this.a.inspect());
+  console.log(this.b.inspect());
+  console.log(this.c.inspect());
+  console.log(n.inspect());
+
+  // Cross matrix such that p*C = p cross n for all vectors p.
   var C = $M([
     [ 0, -1*n.e(3), n.e(2) ],
     [ n.e(3), 0, n.e(1) ],
     [ -1*n.e(2), n.e(1), 0]
   ]);
 
+  // Edge normal vectors, coplanar with triangle such that C[i] dot B[i] = 0.
   var D = B.multiply(C);
 
-  //var G = 
+  // Translate to edge vector origin after computing projection.
+  var G = $M([
+    [ D.e(1,1), D.e(1,2), D.e(1,3), -(A.row(1).dot(D.row(1))) ],
+    [ D.e(2,1), D.e(2,2), D.e(2,3), -(A.row(2).dot(D.row(2))) ],
+    [ D.e(3,1), D.e(3,2), D.e(3,3), -(A.row(3).dot(D.row(3))) ],
+    [ 0,        0,        0,        1                         ]
+  ]);
+
+  // Homogenous coordinates.
+  var hom = p.to3D().elements;
+  hom.push(1);
+  hom = $V(hom);
+  
+  var res = G.multiply(hom);
+
+  return Math.abs(res.e(1)+res.e(2)+res.e(3)) 
+    == Math.abs(res.e(1))+Math.abs(res.e(2))+Math.abs(res.e(3));
 };
 
 // A 2d conic section.
@@ -68,6 +112,9 @@ function Conic(va, vc, vb, rho) {
   this.a = va;
   this.b = vb;
   this.c = vc;
+
+  // Store the envelope triangle.
+  this.boundingTriangle = new Triangle(va, vc, vb);
 
   // System of linear eqns for solving the coefficients of the conic
   //
@@ -101,7 +148,8 @@ function Conic(va, vc, vb, rho) {
   console.log(this.C.inspect());
 }
 
-// Homogenous quadratic equation associated with the conic.
+// Homogenous quadratic equation associated with the conic. The curve is
+// defined as the locus of points m such that S(m) = 0.
 Conic.prototype.S = function(a, b) {
   var m=$M([ a.elements ]), m2=b||a;
   return m.x(this.C).x(m2);
@@ -110,14 +158,14 @@ Conic.prototype.S = function(a, b) {
 // Is the point p part of the curve?
 Conic.prototype.contains = function(p) {
   var x=p.elements[0], y=p.elements[1];
-  return this.S(p) == Vector.Zero(3);
+  return this.S(p) == Vector.Zero(3) && this.boundingTriangle.contains(p);
 };
 
 // Get the point at which the conic intersects the line l.
 Conic.prototype.intersectionWith = function(l) {
   var p1=l.anchor.dup(), p2=l.anchor.add(l.direction), ret=[];
   p1.elements[2] = p2.elements[2] = 1;
-  ret[0] = (-1*this.S(p1,p2) + Math.sqrt(this.S(p1,p2)*this.S(p1,p2) - this.S(p1)*this.S(p2))) / this.S(p2);
-  ret[1] = (-1*this.S(p1,p2) - Math.sqrt(this.S(p1,p2)*this.S(p1,p2) - this.S(p1)*this.S(p2))) / this.S(p2);
+
+  ret = Math.solveQuadratic(this.S(p2), 2*this.s(p1,p2), this.S(p1));
 };
 
