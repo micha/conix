@@ -1,7 +1,5 @@
 (function() {
 
-  var ctx = options[0];
-
   function Line(p1, p2) {
     this.p1 = p1;
     this.p2 = p2;
@@ -13,15 +11,15 @@
 
   }
 
-  Line.draw = function(p1, p2) {
+  Line.draw = function(p1, p2, ctx) {
     ctx.beginPath();
     ctx.moveTo(p1[0], p1[1]);
     ctx.lineTo(p2[0], p2[1]);
     ctx.stroke();
   };
 
-  Line.prototype.draw = function() {
-    Line.draw(this.p1, this.p2);
+  Line.prototype.draw = function(ctx) {
+    Line.draw(this.p1, this.p2, ctx);
   };
 
   Line.prototype.intersect = function(l) {

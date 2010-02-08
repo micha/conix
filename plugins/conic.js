@@ -1,10 +1,8 @@
 (function() {
 
-  var ctx = options[0];
-
   var mesh = 32;
 
-  var Line = $.require("line", [ ctx ]);
+  var Line = $.require("line");
 
   function Conic(a, c, b, rho) {
     var d = [ a[0] + (b[0] - a[0]) / 2, a[1] + (b[1] - a[1]) / 2 ];
@@ -59,10 +57,10 @@
     }
   }
 
-  Conic.prototype.draw = function() {
+  Conic.prototype.draw = function(ctx) {
     var l = this.points.length;
     for (i=1; i<l; i++)
-      Line.draw(this.points[i-1], this.points[i]);
+      Line.draw(this.points[i-1], this.points[i], ctx);
   }
 
   exports = Conic;
