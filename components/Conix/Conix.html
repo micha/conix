@@ -1,0 +1,19 @@
+<div>
+  <style type="text/golf">
+    canvas {
+      border: 1px solid blue;
+    }
+  </style>
+
+  <script type="text/golf">
+    function() {
+      var ctx   = $("canvas").get()[0].getContext("2d");
+      var Conic = $.require("conic", [ctx]);
+      var c     = new Conic([100, 100], [200, 100], [200, 300], 0.75);
+
+      c.draw();
+    }
+  </script>
+
+  <canvas width="400" height="400"></canvas>
+</div>
