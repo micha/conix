@@ -7,11 +7,81 @@
 
   <script type="text/golf">
     function() {
-      var ctx   = $("canvas").get()[0].getContext("2d");
-      var Conic = $.require("conic");
-      var c     = new Conic([100, 100], [200, 100], [200, 300], 0.75);
+      var canvas= $("canvas").get()[0];
+      var width = canvas.width;
+      var height= canvas.height;
+      
+      var scale = [ 1/5, 1/5 ];
+      var origin= [ width/8, 7*height/8 ];
 
-      c.draw(ctx);
+      var Conic = $.require("conic");
+      var Line  = $.require("line");
+      var Geom  = $.require("geometry");
+      var draw  = $.require("draw").get($(canvas), scale, origin);
+
+      draw.path([ [-10000, 0], [10000, 0] ], 2);
+      draw.path([ [0, -10000], [0, 10000] ], 2);
+
+      var m1    = [ 0, 400 ];
+      var m2    = [ 856, -200 ];
+      var m3    = [ 1400, -700 ];
+      var m4    = [ 0,   -1700 ];
+
+      var c1    = [ 556, 250 ];
+      var c2    = [ 1000, -600 ];
+      var c3    = [ 1650, -1700 ];
+
+      var dwl   = [ [ 0, -200 ], [ width, -200] ];
+
+      m2 = Line.intersection([c1, c2], dwl);
+
+      var conic;
+
+      conic = Conic(m1, c1, m2, 0.5);
+
+      draw.path(conic);
+      draw.controlPoint(conic.a);
+      draw.controlPoint(conic.b);
+      draw.controlPoint(conic.c);
+      draw.point(conic.s);
+
+      conic = Conic(m2, c2, m3, 0.75);
+
+      draw.path(conic);
+      draw.controlPoint(conic.a);
+      draw.controlPoint(conic.b);
+      draw.controlPoint(conic.c);
+      draw.point(conic.s);
+
+      conic = Conic(m3, c3, m4, 0.65);
+
+      draw.path(conic);
+      draw.controlPoint(conic.a);
+      draw.controlPoint(conic.b);
+      draw.controlPoint(conic.c);
+      draw.point(conic.s);
+
+      draw.path([m1, c1, m2, c2, m3, c3, m4], 3);
+
+      var mid   = Line.tween([m3, m4], 0.5);
+      var vec   = Geom.subtract(conic.s, mid);
+      var lin   = Geom.transform([m3, m4], [1,1], vec);
+      var d1    = Line.intersection(lin, [m4, c3]);
+      var d2    = Line.intersection(lin, [m3, c3]);
+      var ds    = conic.s;
+      var dr    = conic.rho;
+      draw.path([d1,d2], 1);
+      draw.controlPoint(d1, 1);
+      draw.controlPoint(d2, 1);
+
+      draw.point(Line.tween([Line.tween([m4,conic.s], 0.5), d1], conic.rho), 1);
+      draw.point(Line.tween([Line.tween([m3,conic.s], 0.5), d2], conic.rho), 1);
+
+      conic = Conic(m4, d1, ds, dr);
+      draw.path(conic, 1);
+
+      conic = Conic(m3, d2, ds, dr);
+      draw.path(conic, 1);
     }
   </script>
 
