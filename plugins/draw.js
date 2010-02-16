@@ -11,10 +11,6 @@
     this.ctx        = canvas.get()[0].getContext("2d");
   }
 
-  Draw.get = function(canvas, scale, translate) {
-    return new Draw(canvas, scale, translate);
-  };
-
   Draw.prototype.strokeStyle = function(n) {
     with (this) {
       ctx.strokeStyle = ctx.fillStyle = (!n ? "black" : (n==1 ? "red" : (n==2 ? "lightgray" : "orange")));
@@ -57,6 +53,8 @@
     }
   }
 
-  exports = Draw;
+  exports.get = function(canvas, scale, translate) {
+    return new Draw(canvas, scale, translate);
+  };
 
 })();

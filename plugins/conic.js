@@ -3,8 +3,9 @@
   var mesh = 32;
 
   var Line = $.require("line");
+  var Geom = $.require("geometry");
 
-  function Conic(a, c, b, rho) {
+  exports.get = function(a, c, b, rho) {
     var d, s, ret;
 
     d = [ a[0] + (b[0] - a[0]) / 2, a[1] + (b[1] - a[1]) / 2 ];
@@ -46,12 +47,34 @@
     return ret;
   }
 
-  Conic.mesh = function(m) {
+  exports.mesh = function(m) {
     if (m != undefined)
       mesh = m;
     return mesh;
   };
 
-  exports = Conic;
+  exports.split = function(conic) {
+    var m1    = conic.a;
+    var m2    = conic.s;
+    var m3    = conic.b;
+
+    var mid   = Line.tween([m1, m3], 0.5);
+    var vec   = Geom.subtract(m2, mid);
+    var tan   = Geom.transform([m1, m3], [1,1], vec);
+
+    var c1    = Line.intersection(tan, [conic.a, conic.c]);
+    var c2    = Line.intersection(tan, [conic.b, conic.c]);
+
+    var mid1  = Line.tween([m1, m2], 0.5);
+    var mid2  = Line.tween([m2, m3], 0.5);
+
+    var s1    = Geom.intersection(conic, [mid1, c1])[0];
+    var s2    = Geom.intersection(conic, [mid2, c2])[0];
+
+    var rho1  = Line.isTween([mid1, c1], s1);
+    var rho2  = Line.isTween([mid2, c2], s2);
+
+    return [ exports.get(m1, c1, m2, rho1), exports.get(m2, c2, m3, rho2) ];
+  };
 
 })();

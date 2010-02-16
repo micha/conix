@@ -17,7 +17,9 @@
       var Conic = $.require("conic");
       var Line  = $.require("line");
       var Geom  = $.require("geometry");
-      var draw  = $.require("draw").get($(canvas), scale, origin);
+      var Draw  = $.require("draw");
+      
+      var draw  = Draw.get($(canvas), scale, origin);
 
       draw.path([ [-10000, 0], [10000, 0] ], 2);
       draw.path([ [0, -10000], [0, 10000] ], 2);
@@ -37,7 +39,7 @@
 
       var conic;
 
-      conic = Conic(m1, c1, m2, 0.5);
+      conic = Conic.get(m1, c1, m2, 0.5);
 
       draw.path(conic);
       draw.controlPoint(conic.a);
@@ -45,7 +47,7 @@
       draw.controlPoint(conic.c);
       draw.point(conic.s);
 
-      conic = Conic(m2, c2, m3, 0.75);
+      conic = Conic.get(m2, c2, m3, 0.75);
 
       draw.path(conic);
       draw.controlPoint(conic.a);
@@ -53,7 +55,7 @@
       draw.controlPoint(conic.c);
       draw.point(conic.s);
 
-      conic = Conic(m3, c3, m4, 0.65);
+      conic = Conic.get(m3, c3, m4, 0.65);
 
       draw.path(conic);
       draw.controlPoint(conic.a);
@@ -63,25 +65,8 @@
 
       draw.path([m1, c1, m2, c2, m3, c3, m4], 3);
 
-      var mid   = Line.tween([m3, m4], 0.5);
-      var vec   = Geom.subtract(conic.s, mid);
-      var lin   = Geom.transform([m3, m4], [1,1], vec);
-      var d1    = Line.intersection(lin, [m4, c3]);
-      var d2    = Line.intersection(lin, [m3, c3]);
-      var ds    = conic.s;
-      var dr    = conic.rho;
-      draw.path([d1,d2], 1);
-      draw.controlPoint(d1, 1);
-      draw.controlPoint(d2, 1);
-
-      draw.point(Line.tween([Line.tween([m4,conic.s], 0.5), d1], conic.rho), 1);
-      draw.point(Line.tween([Line.tween([m3,conic.s], 0.5), d2], conic.rho), 1);
-
-      conic = Conic(m4, d1, ds, dr);
-      draw.path(conic, 1);
-
-      conic = Conic(m3, d2, ds, dr);
-      draw.path(conic, 1);
+      var split = Conic.split(conic);
+      draw.path(split[0], 3);
     }
   </script>
 

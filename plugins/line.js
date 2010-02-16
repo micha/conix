@@ -2,14 +2,11 @@
 
   var Geom = $.require("geometry");
 
-  function Line() {
-  }
-
-  Line.length = function(l) {
+  exports.length = function(l) {
     //return Math.sqrt(
   };
 
-  Line.intersection = function(l1, l2) {
+  exports.intersection = function(l1, l2) {
     var a=new Array(2), b=new Array(2), i, l, p1, p2;
 
     for (i=0; i<2; i++) {
@@ -35,13 +32,16 @@
               ])));
   };
 
-  Line.tween = function(l, k) {
+  exports.tween = function(l, k) {
     return [ (1-k)*l[0][0] + k*l[1][0], (1-k)*l[0][1] + k*l[1][1] ];
   };
 
-  Line.isTween = function(l, p) {
+  exports.isTween = function(l, p) {
+    return (l[0][0] == l[1][0]
+        ? (l[0][1] == l[1][1] 
+          ? null
+          : (p[1] - l[0][1]) / (l[1][1] - l[0][1]))
+        : (p[0] - l[0][0]) / (l[1][0] - l[0][0]));
   };
-
-  exports = Line;
 
 })();
