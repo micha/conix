@@ -11,62 +11,71 @@
       var width = canvas.width;
       var height= canvas.height;
       
-      var scale = [ 1/5, 1/5 ];
-      var origin= [ width/8, 7*height/8 ];
+      var scale = [ 1/7, 1/7 ];
+      var origin= [ 4*width/9, 3*height/4 ];
 
-      var Conic = $.require("conic");
+      var Vector= $.require("vector");
       var Line  = $.require("line");
-      var Geom  = $.require("geometry");
+      var Path  = $.require("path");
+      var Conic = $.require("conic");
       var Draw  = $.require("draw");
+      var Geom  = $.require("geometry");
+      var Stn   = $.require("station");
       
       var draw  = Draw.get($(canvas), scale, origin);
+
+      window.view = draw;
+
+      Conic.mesh(32);
 
       draw.path([ [-10000, 0], [10000, 0] ], 2);
       draw.path([ [0, -10000], [0, 10000] ], 2);
 
+      var m2, m3, m4;
+
       var m1    = [ 0, 400 ];
-      var m2    = [ 856, -200 ];
-      var m3    = [ 1400, -700 ];
-      var m4    = [ 0,   -1700 ];
+      var c1    = [ 425, 250 ];
+      var c2    = [ 715, -375 ];
+      var m3    = [ 1000, -475 ];
+      var c3    = [ 1400, -1383 ];
+      var m4    = [ 0,   -1400 ];
 
-      var c1    = [ 556, 250 ];
-      var c2    = [ 1000, -600 ];
-      var c3    = [ 1650, -1700 ];
+      var r1    = 0.55;
+      var r2    = 0.55;
+      var r3    = 0.63;
 
-      var dwl   = [ [ 0, -200 ], [ width, -200] ];
 
-      m2 = Line.intersection([c1, c2], dwl);
+      m2 = Line.tween([c1, c2], 0.55);
 
-      var conic;
+      var conic, conic1, conic2, conic3, conic4, dv, i;
 
-      conic = Conic.get(m1, c1, m2, 0.5);
+      conic1 = Conic.get(m1, c1, m2, [ 365.2625, 206.40625 ]);
+      conic2 = Conic.get(m2, c2, m3, r2);
+      conic3 = Conic.get(m3, c3, m4, r3);
 
-      draw.path(conic);
-      draw.controlPoint(conic.a);
-      draw.controlPoint(conic.b);
-      draw.controlPoint(conic.c);
-      draw.point(conic.s);
+      draw.path(Conic.split(conic3)[0], 1);
 
-      conic = Conic.get(m2, c2, m3, 0.75);
+      conic = Path.concat(conic1, conic2, conic3);
 
-      draw.path(conic);
-      draw.controlPoint(conic.a);
-      draw.controlPoint(conic.b);
-      draw.controlPoint(conic.c);
-      draw.point(conic.s);
-
-      conic = Conic.get(m3, c3, m4, 0.65);
+      conic = Path.close(Path.concat(conic, Geom.reflect(conic).reverse()));
 
       draw.path(conic);
-      draw.controlPoint(conic.a);
-      draw.controlPoint(conic.b);
-      draw.controlPoint(conic.c);
-      draw.point(conic.s);
+      //draw.path(Geom.transform(conic, [14/16 ,15/16], [0,-65]));
+      //draw.path(Geom.transform(conic, [5/10 ,9/10], [0,-100]));
+      draw.path([m1,c1,c2,m3,c3,m4],3);
+      draw.controlPoint(c1,c2,c3,0);
+      draw.point(m1,m2,m3,m4,0);
+      //draw.controlPoint.apply(draw,conic);
 
-      draw.path([m1, c1, m2, c2, m3, c3, m4], 3);
+      /*
+      dv = Path.curvature(conic);
+      draw.path(dv[0], 1);
+      for (i=1; i<dv.length; i++) {
+        draw.path(dv[i], 1);
+        draw.path([ dv[i-1][1], dv[i][1] ], 1);
+      }
+      */
 
-      var split = Conic.split(conic);
-      draw.path(split[0], 3);
     }
   </script>
 

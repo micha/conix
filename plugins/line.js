@@ -1,9 +1,10 @@
 (function() {
 
-  var Geom = $.require("geometry");
+  var Vector = $.require("vector");
 
   exports.length = function(l) {
-    //return Math.sqrt(
+    var vec = Vector.subtract(l[1], l[0]);
+    return Math.sqrt(Vector.dot(vec, vec));
   };
 
   exports.intersection = function(l1, l2) {
@@ -36,12 +37,12 @@
     return [ (1-k)*l[0][0] + k*l[1][0], (1-k)*l[0][1] + k*l[1][1] ];
   };
 
+  // janky
   exports.isTween = function(l, p) {
-    return (l[0][0] == l[1][0]
-        ? (l[0][1] == l[1][1] 
-          ? null
-          : (p[1] - l[0][1]) / (l[1][1] - l[0][1]))
-        : (p[0] - l[0][0]) / (l[1][0] - l[0][0]));
+    return (p[0] >= Math.min(l[0][0], l[1][0]) 
+        && p[0] <= Math.max(l[0][0], l[1][0])
+        && p[1] >= Math.min(l[0][1], l[1][1])
+        && p[1] <= Math.max(l[0][1], l[1][1]));
   };
 
 })();

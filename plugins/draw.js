@@ -3,6 +3,7 @@
   var radius = 3;
 
   var Geom = $.require("geometry");
+  var Vector = $.require("vector");
 
   function Draw(canvas, scale, translate) {
     this.canvas     = canvas;
@@ -12,37 +13,55 @@
   }
 
   Draw.prototype.strokeStyle = function(n) {
-    with (this) {
-      ctx.strokeStyle = ctx.fillStyle = (!n ? "black" : (n==1 ? "red" : (n==2 ? "lightgray" : "orange")));
-    }
+    this.ctx.strokeStyle = this.ctx.fillStyle = 
+      (n==1 ? "red" : (n==2 ? "lightgray" : (n==3 ? "orange" : "black")));
   };
 
   Draw.prototype.point = function(p, style) {
+    var style, argv=Array.prototype.slice.call(arguments, 0), len=argv.length,
+        i, p;
+
+    if (len > 1 && ! Vector.isPoint(argv[len-1])) {
+      style = argv.pop();
+      len = argv.length;
+    }
+
     with (this) {
-      p = Geom.transform(p, scale, translate);
-      strokeStyle(style);
-      ctx.beginPath();
-      ctx.arc(p[0], p[1], radius, 0, Math.PI*2, true);
-      ctx.stroke();
-      ctx.fill();
-      return p;
+      for (i=0; i<len; i++) {
+        p = Geom.transform(argv[i], scale, translate);
+        strokeStyle(style);
+        ctx.beginPath();
+        ctx.arc(p[0], p[1], radius, 0, Math.PI*2, true);
+        ctx.stroke();
+        ctx.fill();
+      }
     }
   };
 
   Draw.prototype.controlPoint = function(p, style) {
+    var style, argv=Array.prototype.slice.call(arguments, 0), len=argv.length,
+        i, p;
+
+    if (len > 1 && ! Vector.isPoint(argv[len-1])) {
+      style = argv.pop();
+      len = argv.length;
+    }
+
     with (this) {
-      p = Geom.transform(p, scale, translate);
-      strokeStyle(style);
-      ctx.beginPath();
-      ctx.strokeRect(p[0]-radius, p[1]-radius, radius*2, radius*2);
-      ctx.stroke();
-      return p;
+      for (i=0; i<len; i++) {
+        p = Geom.transform(argv[i], scale, translate);
+        strokeStyle(style);
+        ctx.beginPath();
+        ctx.strokeRect(p[0]-radius, p[1]-radius, radius*2, radius*2);
+        ctx.stroke();
+      }
     }
   };
 
   Draw.prototype.path = function(p, style) {
     var len = p.length, i;
     with (this) {
+      ctx.globalCompositeOperation = "destination-over";
       p = Geom.transform(p, scale, translate);
       strokeStyle(style);
       ctx.beginPath();
