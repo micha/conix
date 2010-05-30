@@ -18,11 +18,11 @@
       var Line  = $.require("line");
       var Path  = $.require("path");
       var Conic = $.require("conic");
-      var Draw  = $.require("draw");
+      var Draw  = $.require("draw").Draw;
       var Geom  = $.require("geometry");
       var Stn   = $.require("station");
       
-      var draw  = Draw.get($(canvas), scale, origin);
+      var draw  = new Draw($(canvas), scale, origin);
 
       window.view = draw;
 

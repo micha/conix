@@ -3,8 +3,7 @@
   var Vector = $.require("vector");
 
   exports.length = function(l) {
-    var vec = Vector.subtract(l[1], l[0]);
-    return Math.sqrt(Vector.dot(vec, vec));
+    return Vector.length(Vector.subtract(l[1], l[0]));
   };
 
   exports.intersection = function(l1, l2) {

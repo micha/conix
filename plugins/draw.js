@@ -72,8 +72,6 @@
     }
   }
 
-  exports.get = function(canvas, scale, translate) {
-    return new Draw(canvas, scale, translate);
-  };
+  exports.Draw = Draw;
 
 })();
