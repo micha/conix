@@ -39,7 +39,7 @@ This section coming soon.
 The conic section code is working, need to implement modelspace to paperspace
 transformations, surface editing, plugin architecture, etc.
 
-![Screenshot - progress so far...](http://github.com/micha/imap-js/raw/master/screenshot.png "Screenshot - progress so far...")
+![Screenshot - progress so far...](http://github.com/micha/conix/raw/master/screenshot.png "Screenshot - progress so far...")
 
 ### Install
 
